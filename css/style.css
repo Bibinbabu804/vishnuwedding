@@ -692,18 +692,16 @@ section{ position:relative; padding: 2.8rem 1.4rem; overflow:hidden; }
 /* petals under hero and globally */
 .petal-field{ position:fixed; inset:0; pointer-events:none; z-index:40; overflow:hidden; }
 .petal{
-  position:absolute; top:-10%;
-  opacity:.88; will-change:transform;
-  animation-name:petalFall; animation-timing-function:cubic-bezier(0.37, 0, 0.63, 1); animation-iteration-count:infinite;
-  filter: drop-shadow(0 4px 8px rgba(58,36,28,0.22));
+  position:absolute; top:-8%;
+  opacity:.85; will-change:transform;
+  animation-name:petalFall; animation-timing-function:linear; animation-iteration-count:infinite;
+  filter: drop-shadow(0 3px 6px rgba(58,36,28,0.18));
 }
 .petal svg{ width:100%; height:100%; }
 @keyframes petalFall{
-  0%{ transform: translate3d(0, -10vh, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-  25%{ transform: translate3d(calc(var(--drift, 40px) * 0.4), 28vh, 0) rotateX(90deg) rotateY(110deg) rotateZ(80deg); }
-  50%{ transform: translate3d(calc(var(--drift, 40px) * 0.8), 60vh, 0) rotateX(180deg) rotateY(220deg) rotateZ(180deg); }
-  75%{ transform: translate3d(calc(var(--drift, 40px) * 0.5), 90vh, 0) rotateX(270deg) rotateY(290deg) rotateZ(260deg); }
-  100%{ transform: translate3d(var(--drift, 40px), 120vh, 0) rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+  0%{ transform: translate3d(0,-8vh,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  50%{ transform: translate3d(calc(var(--drift,40px) * 0.5), 55vh, 0) rotateX(180deg) rotateY(180deg) rotateZ(180deg); }
+  100%{ transform: translate3d(var(--drift,40px), 115vh, 0) rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
 }
 @media (prefers-reduced-motion: reduce){
   .petal{ animation:none; display:none; }

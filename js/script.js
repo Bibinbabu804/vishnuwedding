@@ -167,18 +167,11 @@
   const petalField = document.getElementById("petal-field");
   let petalsStarted = false;
 
-  const petalTypes = [
-    "#sym-petal-rose",
-    "#sym-petal-gold",
-    "#sym-petal-pink",
-    "#sym-petal-burgundy"
-  ];
-
   function startPetals() {
     if (petalsStarted || reducedMotion) return;
     petalsStarted = true;
 
-    const count = window.innerWidth < 640 ? 42 : 75;
+    const count = window.innerWidth < 640 ? 18 : 28;
     for (let i = 0; i < count; i++) {
       spawnPetal(true);
     }
@@ -189,14 +182,14 @@
     const petal = document.createElement("div");
     petal.className = "petal";
 
-    const size = 10 + Math.random() * 20;
-    const left = Math.random() * 98;
-    const duration = 7 + Math.random() * 11;
+    const size = 12 + Math.random() * 16;
+    const left = Math.random() * 96;
+    const duration = 9 + Math.random() * 10;
     const delay = initial ? Math.random() * -duration : 0;
-    const drift = (Math.random() * 200 - 100).toFixed(0) + "px";
-    const opacity = 0.5 + Math.random() * 0.45;
+    const drift = (Math.random() * 140 - 70).toFixed(0) + "px";
+    const opacity = 0.45 + Math.random() * 0.45;
     const rotateStart = Math.random() * 360;
-    const selectedSymbol = petalTypes[Math.floor(Math.random() * petalTypes.length)];
+    const petalType = Math.random() > 0.45 ? "#sym-petal-rose" : "#sym-petal-gold";
 
     petal.style.left = left + "vw";
     petal.style.width = size + "px";
@@ -206,7 +199,7 @@
     petal.style.animationDelay = delay + "s";
     petal.style.setProperty("--drift", drift);
     petal.style.transform = `rotate(${rotateStart}deg)`;
-    petal.innerHTML = `<svg viewBox="0 0 30 30"><use href="${selectedSymbol}"/></svg>`;
+    petal.innerHTML = `<svg viewBox="0 0 30 30"><use href="${petalType}"/></svg>`;
 
     petalField.appendChild(petal);
   }
