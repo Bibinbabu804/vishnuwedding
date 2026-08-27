@@ -302,4 +302,172 @@
     setInterval(updateCountdown, 1000);
   }
 
+  /* ------------------------------------------------------------------
+     SCRATCH CARD TO REVEAL WEDDING DATE
+     ------------------------------------------------------------------ */
+  function initScratchCard() {
+    const canvas = document.getElementById("scratch-canvas");
+    const container = document.querySelector(".scratch-container");
+    const autoBtn = document.getElementById("auto-reveal-btn");
+    const badge = document.getElementById("scratch-completed");
+    if (!canvas || !container) return;
+
+    const ctx = canvas.getContext("2d");
+    let isScratching = false;
+    let isRevealed = false;
+    let lastPos = null;
+
+    function resizeCanvas() {
+      if (isRevealed) return;
+      const rect = container.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      drawGoldSurface();
+    }
+
+    function drawGoldSurface() {
+      const w = canvas.width;
+      const h = canvas.height;
+      if (w === 0 || h === 0) return;
+      ctx.globalCompositeOperation = "source-over";
+
+      // Royal Gold Foil Metallic Gradient
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, "#FDF3A9");
+      grad.addColorStop(0.25, "#D4AF37");
+      grad.addColorStop(0.5, "#FFF8B5");
+      grad.addColorStop(0.75, "#9A7217");
+      grad.addColorStop(1, "#B88A32");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Inner ornate border
+      ctx.strokeStyle = "rgba(110, 23, 32, 0.35)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(12, 12, w - 24, h - 24);
+
+      // Dashed accent border
+      ctx.setLineDash([6, 4]);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(16, 16, w - 32, h - 32);
+      ctx.setLineDash([]);
+
+      // Instruction text rendered onto canvas
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#501017";
+
+      ctx.font = "bold 13px 'Cinzel', serif";
+      ctx.fillText("✨ SCRATCH TO REVEAL ✨", w / 2, h / 2 - 12);
+
+      ctx.font = "italic 14px 'Cormorant Garamond', serif";
+      ctx.fillText("Rub here to uncover our wedding date", w / 2, h / 2 + 14);
+    }
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      let cx, cy;
+      if (e.touches && e.touches[0]) {
+        cx = e.touches[0].clientX - rect.left;
+        cy = e.touches[0].clientY - rect.top;
+      } else {
+        cx = e.clientX - rect.left;
+        cy = e.clientY - rect.top;
+      }
+      return { x: cx, y: cy };
+    }
+
+    function scratch(e) {
+      if (!isScratching || isRevealed) return;
+      if (e.cancelable) e.preventDefault();
+      const pos = getPos(e);
+
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      if (lastPos) {
+        ctx.moveTo(lastPos.x, lastPos.y);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.lineWidth = 55;
+        ctx.lineCap = "round";
+        ctx.stroke();
+      } else {
+        ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      lastPos = pos;
+
+      checkProgress();
+    }
+
+    function startScratch(e) {
+      isScratching = true;
+      lastPos = getPos(e);
+      scratch(e);
+    }
+
+    function stopScratch() {
+      isScratching = false;
+      lastPos = null;
+    }
+
+    let checkTimer = null;
+    function checkProgress() {
+      if (isRevealed || checkTimer) return;
+      checkTimer = setTimeout(() => {
+        checkTimer = null;
+        const w = canvas.width;
+        const h = canvas.height;
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const pixels = imgData.data;
+        let cleared = 0;
+        for (let i = 3; i < pixels.length; i += 16) {
+          if (pixels[i] === 0) cleared++;
+        }
+        const percent = (cleared / (pixels.length / 16)) * 100;
+        if (percent > 35) {
+          revealFull();
+        }
+      }, 120);
+    }
+
+    function revealFull() {
+      if (isRevealed) return;
+      isRevealed = true;
+      canvas.style.transition = "opacity 0.6s ease-out";
+      canvas.style.opacity = "0";
+      setTimeout(() => {
+        canvas.style.display = "none";
+        if (badge) badge.classList.add("show");
+        if (autoBtn) autoBtn.style.display = "none";
+      }, 600);
+
+      if (typeof spawnClickSparkles === "function") {
+        spawnClickSparkles({
+          clientX: container.getBoundingClientRect().left + container.offsetWidth / 2,
+          clientY: container.getBoundingClientRect().top + container.offsetHeight / 2
+        });
+      }
+    }
+
+    canvas.addEventListener("mousedown", startScratch);
+    canvas.addEventListener("mousemove", scratch);
+    window.addEventListener("mouseup", stopScratch);
+
+    canvas.addEventListener("touchstart", startScratch, { passive: false });
+    canvas.addEventListener("touchmove", scratch, { passive: false });
+    canvas.addEventListener("touchend", stopScratch);
+
+    if (autoBtn) {
+      autoBtn.addEventListener("click", () => {
+        revealFull();
+      });
+    }
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+  }
+
+  initScratchCard();
+
 })();
