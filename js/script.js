@@ -265,4 +265,41 @@
     });
   }
 
+  /* ------------------------------------------------------------------
+     COUNTDOWN TIMER LOGIC
+     ------------------------------------------------------------------ */
+  const weddingDate = new Date("2026-11-15T10:10:00+05:30").getTime();
+  const cdDays = document.getElementById("cd-days");
+  const cdHours = document.getElementById("cd-hours");
+  const cdMins = document.getElementById("cd-mins");
+  const cdSecs = document.getElementById("cd-secs");
+  const cdMessage = document.getElementById("cd-message");
+  const timerGrid = document.getElementById("timer");
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = weddingDate - now;
+
+    if (distance <= 0) {
+      if (timerGrid) timerGrid.style.display = "none";
+      if (cdMessage) cdMessage.style.display = "block";
+      return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((distance % (1000 * 60)) / 1000);
+
+    if (cdDays) cdDays.textContent = String(days).padStart(2, "0");
+    if (cdHours) cdHours.textContent = String(hours).padStart(2, "0");
+    if (cdMins) cdMins.textContent = String(mins).padStart(2, "0");
+    if (cdSecs) cdSecs.textContent = String(secs).padStart(2, "0");
+  }
+
+  if (cdDays && cdHours && cdMins && cdSecs) {
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
 })();
