@@ -208,6 +208,70 @@
   startPetals();
 
   /* ------------------------------------------------------------------
+     FLOATING BUTTERFLIES
+     ------------------------------------------------------------------ */
+  const butterflyField = document.getElementById("butterfly-field");
+  let butterfliesStarted = false;
+
+  function startButterflies() {
+    if (butterfliesStarted || reducedMotion || !butterflyField) return;
+    butterfliesStarted = true;
+
+    const colorThemes = [
+      { leftTheme: "#sym-butterfly-left", rightTheme: "#sym-butterfly-right" },            // Gold Foil
+      { leftTheme: "#sym-butterfly-rose-left", rightTheme: "#sym-butterfly-rose-right" },   // Rose Burgundy
+      { leftTheme: "#sym-butterfly-emerald-left", rightTheme: "#sym-butterfly-emerald-right" } // Emerald Green
+    ];
+
+    // Pick 2 random distinct color themes
+    const shuffled = [...colorThemes].sort(() => Math.random() - 0.5);
+    const butterflyConfigs = shuffled.slice(0, 2);
+
+    butterflyConfigs.forEach((config, idx) => {
+      spawnButterflyConfig(config, idx);
+    });
+  }
+
+  function spawnButterflyConfig(config, idx) {
+    if (!butterflyField) return;
+    const butterfly = document.createElement("div");
+    butterfly.className = "butterfly";
+
+    const size = 38 + idx * 4;
+    const startPositions = [20, 68];
+    const startLeft = startPositions[idx % 2];
+    const duration = 14;
+    const delay = idx * 6; // Staggered entry
+    const flapSpeed = (0.32 + idx * 0.06).toFixed(2);
+    const driftX = (idx === 0 ? "24vw" : "-22vw");
+
+    butterfly.style.left = startLeft + "vw";
+    butterfly.style.width = size + "px";
+    butterfly.style.height = (size * 1.2) + "px";
+    butterfly.style.animationDuration = duration + "s";
+    butterfly.style.animationDelay = delay + "s";
+    butterfly.style.setProperty("--fly-drift-x", driftX);
+
+    butterfly.innerHTML = `
+      <div class="butterfly-wings-wrapper">
+        <div class="butterfly-wing wing-left" style="animation-duration:${flapSpeed}s">
+          <svg viewBox="0 0 50 60"><use href="${config.leftTheme}"/></svg>
+        </div>
+        <div class="butterfly-body">
+          <svg viewBox="0 0 14 60"><use href="#sym-butterfly-body"/></svg>
+        </div>
+        <div class="butterfly-wing wing-right" style="animation-duration:${flapSpeed}s">
+          <svg viewBox="0 0 50 60"><use href="${config.rightTheme}"/></svg>
+        </div>
+      </div>
+    `;
+
+    butterflyField.appendChild(butterfly);
+  }
+
+  startButterflies();
+
+  /* ------------------------------------------------------------------
      GALLERY LIGHTBOX
      ------------------------------------------------------------------ */
   const lightbox = document.getElementById("lightbox");
@@ -230,30 +294,44 @@
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
 
   /* ------------------------------------------------------------------
-     RSVP FORM
+     WHATSAPP BLESSINGS & WISHES FORM
      ------------------------------------------------------------------ */
-  const rsvpForm = document.getElementById("rsvp-form");
-  const rsvpThanks = document.getElementById("rsvp-thanks");
-  const rsvpPillOptions = document.querySelectorAll(".rsvp-pill-option");
+  const whatsappForm = document.getElementById("whatsapp-wishes-form");
+  const wishMessageInput = document.getElementById("wish-message");
+  const wishNameInput = document.getElementById("wish-name");
+  const wishChips = document.querySelectorAll(".wish-chip");
 
-  rsvpPillOptions.forEach((option) => {
-    option.addEventListener("click", () => {
-      rsvpPillOptions.forEach((opt) => opt.classList.remove("active"));
-      option.classList.add("active");
-      const radio = option.querySelector('input[type="radio"]');
-      if (radio) radio.checked = true;
+  if (wishChips.length && wishMessageInput) {
+    wishChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const text = chip.getAttribute("data-text");
+        if (text) {
+          wishMessageInput.value = text;
+          wishMessageInput.focus();
+        }
+      });
     });
-  });
+  }
 
-  rsvpForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!rsvpForm.checkValidity()) {
-      rsvpForm.reportValidity();
-      return;
-    }
-    rsvpForm.style.display = "none";
-    rsvpThanks.classList.add("show");
-  });
+  if (whatsappForm) {
+    whatsappForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = (wishNameInput ? wishNameInput.value : "").trim();
+      const message = (wishMessageInput ? wishMessageInput.value : "").trim();
+
+      if (!name || !message) {
+        return;
+      }
+
+      // Format WhatsApp Message cleanly
+      const formattedText = `Blessings for Vishnu & Devika\n\nFrom: ${name}\nMessage: ${message}`;
+      const whatsappNumber = "919995574445";
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(formattedText)}`;
+
+      // Open WhatsApp
+      window.open(whatsappUrl, "_blank");
+    });
+  }
 
   /* ------------------------------------------------------------------
      BACK TO TOP SMOOTH SCROLL
@@ -378,6 +456,50 @@
       return { x: cx, y: cy };
     }
 
+    function triggerRosePetalBurst() {
+      const rect = container.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const count = 28;
+
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          spawnSinglePopPetal(centerX, centerY, true);
+        }, i * 35);
+      }
+    }
+
+    function spawnSinglePopPetal(originX, originY, isGrand) {
+      const petal = document.createElement("div");
+      petal.className = "scratch-petal-pop";
+
+      const angle = Math.random() * Math.PI * 2;
+      const distance = isGrand ? (30 + Math.random() * 150) : (15 + Math.random() * 60);
+      const popX = (Math.cos(angle) * distance).toFixed(1) + "px";
+      const popY = (Math.sin(angle) * distance - (isGrand ? 60 : 25)).toFixed(1) + "px";
+      const popRotate = (Math.random() * 360).toFixed(0) + "deg";
+      const size = isGrand ? (18 + Math.random() * 20) : (14 + Math.random() * 14);
+
+      const petalTypes = ["#sym-petal-rose", "#sym-petal-rose", "#sym-petal-pink", "#sym-petal-burgundy", "#sym-petal-gold"];
+      const selectedType = petalTypes[Math.floor(Math.random() * petalTypes.length)];
+
+      petal.style.left = originX + "px";
+      petal.style.top = originY + "px";
+      petal.style.width = size + "px";
+      petal.style.height = size + "px";
+      petal.style.setProperty("--pop-x", popX);
+      petal.style.setProperty("--pop-y", popY);
+      petal.style.setProperty("--pop-rotate", popRotate);
+
+      petal.innerHTML = `<svg viewBox="0 0 30 30"><use href="${selectedType}"/></svg>`;
+
+      document.body.appendChild(petal);
+
+      setTimeout(() => {
+        if (petal.parentNode) petal.parentNode.removeChild(petal);
+      }, 1900);
+    }
+
     function scratch(e) {
       if (!isScratching || isRevealed) return;
       if (e.cancelable) e.preventDefault();
@@ -396,6 +518,12 @@
         ctx.fill();
       }
       lastPos = pos;
+
+      // Micro rose petal pop while scratching
+      if (Math.random() < 0.22) {
+        const rect = container.getBoundingClientRect();
+        spawnSinglePopPetal(rect.left + pos.x, rect.top + pos.y, false);
+      }
 
       checkProgress();
     }
@@ -434,6 +562,9 @@
     function revealFull() {
       if (isRevealed) return;
       isRevealed = true;
+
+      // Grand rose petal burst effect
+      triggerRosePetalBurst();
       canvas.style.transition = "opacity 0.6s ease-out";
       canvas.style.opacity = "0";
       setTimeout(() => {
