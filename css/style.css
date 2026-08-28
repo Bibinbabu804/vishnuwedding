@@ -525,7 +525,7 @@ section{ position:relative; padding: 2.8rem 1.4rem; overflow:hidden; }
 
 /* ---- HERO / COVER ULTRA-PREMIUM ---- */
 #hero{
-  padding: 3.2rem 1rem 3.2rem;
+  padding: 3.2rem .5rem 3.2rem;
   min-height:100svh;
   display:flex; align-items:center; justify-content:center;
   background:
